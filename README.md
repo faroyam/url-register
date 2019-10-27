@@ -15,11 +15,11 @@ end
 ```
 
 Or you can git clone it and run via `mix run --no-halt`.
-It is necessary to start Redis, e.g. ["docker-compose up -d"](docker-compose.yml)
+It is necessary to start Redis, e.g. [`docker-compose up -d`](docker-compose.yml)
 
 ## API specs
 
-["swagger"](api/swagger.yml)
+[swagger](api/swagger.yml)
 
 ## License
 
