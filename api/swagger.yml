@@ -1,0 +1,83 @@
+swagger: "2.0"
+info:
+  description: "This application tracks URL visits and gathers the data to Redis."
+  version: "0.1.0"
+  title: "url register"
+schemes:
+  - "http"
+
+paths:
+  /visited_links:
+    post:
+      summary: "Save new visited links"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "links array to be saved"
+          required: true
+          schema:
+            $ref: "#/definitions/visited_links"
+      responses:
+        200:
+          description: "operation status"
+          schema:
+            $ref: "#/definitions/status"
+        default:
+          description: "error response"
+          schema:
+            $ref: "#/definitions/status"
+
+  /visited_domains:
+    get:
+      summary: "Show all visited domains for a period of time"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "query"
+          name: "from"
+          type: "string"
+          description: "initial time in unix timestamp"
+          required: true
+        - in: "query"
+          name: "to"
+          type: string
+          description: "final time in unix timestamp"
+          required: true
+      responses:
+        200:
+          description: "visited domains for the specified period of time"
+          schema:
+            $ref: "#/definitions/visited_domains"
+        default:
+          description: "error response"
+          schema:
+            $ref: "#/definitions/status"
+
+definitions:
+  status:
+    type: object
+    properties:
+      status:
+        type: string
+  visited_links:
+    type: object
+    properties:
+      links:
+        type: array
+        items:
+          type: string
+      status:
+        type: string
+  visited_domains:
+    type: object
+    properties:
+      domains:
+        type: array
+        items:
+          type: string
+      status:
+        type: string

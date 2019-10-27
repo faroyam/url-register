@@ -1,0 +1,7 @@
+redis:
+  container_name: redis
+  image: redis
+  ports:
+    - "6379:6379"
+  entrypoint: redis-server --appendonly no --save ""
+  restart: always
