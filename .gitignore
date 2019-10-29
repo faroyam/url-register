@@ -24,3 +24,4 @@ url_register-*.tar
 
 /.elixir_ls/
 /.vscode/
+/.idea/

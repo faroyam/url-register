@@ -4,10 +4,9 @@ defmodule UrlRegister.MixProject do
   def project do
     [
       app: :url_register,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
-      deps: deps(),
       description: description(),
       package: package(),
       deps: deps(),
@@ -32,7 +31,8 @@ defmodule UrlRegister.MixProject do
       {:castore, "~> 0.1.4"},
       {:poison, "~> 4.0.1"},
       {:plug_logger_json, "~> 0.7.0"},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.0.0-rc.7", only: [:dev], runtime: false}
     ]
   end
 
