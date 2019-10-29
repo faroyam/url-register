@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   description: "This application tracks URL visits and gathers the data to Redis."
-  version: "0.1.0"
+  version: "0.1.1"
   title: "url register"
 schemes:
   - "http"

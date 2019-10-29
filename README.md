@@ -9,7 +9,7 @@ The package can be installed by adding `url_register` to your list of dependenci
 ```elixir
 def deps do
   [
-    {:url_register, "~> 0.1.0"}
+    {:url_register, "~> 0.1.1"}
   ]
 end
 ```
