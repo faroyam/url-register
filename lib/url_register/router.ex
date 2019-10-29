@@ -3,40 +3,41 @@ defmodule UrlRegister.Router do
   use Plug.ErrorHandler
 
   alias UrlRegister.Model
+  alias UrlRegister.Redis
+  alias UrlRegister.Plugs
 
   require Logger
 
   plug(Plug.LoggerJSON, log: Logger.level())
+  plug(Plugs.VerifyQuery, query_params: ["from", "to"], paths: ["/visited_domains"])
   plug(:match)
   plug(Plug.Parsers, parsers: [:json], json_decoder: Poison)
+  plug(Plugs.VerifyBody, body_params: ["links"], paths: ["/visited_links"])
   plug(:dispatch)
 
   post "/visited_links" do
-    {status, body} =
-      case conn.body_params do
-        %{"links" => links} ->
-          Model.VisitedLinks.save_links(links)
-          {200, Model.Status.encode("ok")}
+    conn.body_params
+    |> Map.get("links")
+    |> Model.VisitedDomains.domains_from_links()
+    |> Model.VisitedDomains.domains_to_store()
+    |> Redis.save_domains()
 
-        _ ->
-          {422, Model.Status.encode("empty links list")}
-      end
+    {status, body} = {200, "ok"}
 
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(status, body)
+    |> send_resp(status, Model.Status.encode(body))
   end
 
   get "/visited_domains" do
-    {status, body} =
-      case fetch_query_params(conn).query_params do
-        %{"from" => from, "to" => to} ->
-          domains = Model.VisitedDomains.get_domains(from, to)
-          {200, Model.VisitedDomains.encode(domains, "ok")}
+    domains =
+      Redis.get_domains(
+        Map.get(conn.query_params, "from"),
+        Map.get(conn.query_params, "to")
+      )
+      |> Model.VisitedDomains.domains_from_store()
 
-        _ ->
-          send_resp(conn, 400, Model.Status.encode("missing params"))
-      end
+    {status, body} = {200, Model.VisitedDomains.encode(domains, "ok")}
 
     conn
     |> put_resp_content_type("application/json")
@@ -49,16 +50,25 @@ defmodule UrlRegister.Router do
     |> send_resp(404, Model.Status.encode("not found"))
   end
 
-  defp handle_errors(%Plug.Conn{status: 500} = conn, %{
+  defp handle_errors(conn, %{
          kind: kind,
          reason: reason,
          stack: stacktrace
        }) do
     Plug.LoggerJSON.log_error(kind, reason, stacktrace)
 
+    body =
+      cond do
+        conn.status >= 400 && conn.status < 500 ->
+          "bad request"
+
+        true ->
+          "internal error"
+      end
+
     conn
     |> put_resp_content_type("application/json")
-    |> send_resp(500, Model.Status.encode("internal error"))
+    |> send_resp(conn.status, Model.Status.encode(body))
   end
 
   defp handle_errors(_, _), do: nil

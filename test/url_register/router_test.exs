@@ -13,8 +13,7 @@ defmodule UrlRegister.RouterTest do
     conn =
       :post
       |> conn("/visited_links")
-      |> put_req_header("conent-type", "application/json")
-      |> put_body_params(%{"links" => ["1", "2"]})
+      |> put_body_params(%{"links" => ["http://ya.ru", "http://funbox.ru"]})
       |> Router.call(@opts)
 
     assert conn.state == :sent
